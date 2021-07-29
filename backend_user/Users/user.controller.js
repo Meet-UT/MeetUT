@@ -50,14 +50,18 @@ exports.deleteUser = (req, res) => {
 }
 
 exports.updatePassword = (req, res) => {
-    let salt = crypto.randomBytes.apply(16).toString('base64')
-    let hash = crypto.createHmac('sha512', salt).update(req.body.password).digest('base64')
-    req.body.password = salt + "$" + hash
-    UserModel.updatePassword(req.params.userID, user.body.password).then((result) => {
-        if (result == null) {
-            res.satus(404).send("User not found")
-        }else {
-            res.status(200).send()
-        }
-    })
+    if (req.body.password == "") {
+        res.status(400).send("Password required")
+    }else {
+        let salt = crypto.randomBytes.apply(16).toString('base64')
+        let hash = crypto.createHmac('sha512', salt).update(req.body.password).digest('base64')
+        req.body.password = salt + "$" + hash
+        UserModel.updatePassword(req.params.userID, user.body.password).then((result) => {
+            if (result == null) {
+                res.satus(404).send("User not found")
+            }else {
+                res.status(200).send()
+            }
+        })
+    }
 }
