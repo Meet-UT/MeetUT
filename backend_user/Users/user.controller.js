@@ -4,12 +4,15 @@ const jwt = require('jsonwebtoken')
 const jwtSecret = require("../env.config").jwt_secret
 
 exports.createUser = (req, res) => {
+    if (req.body.password == "") {
+        res.status(400).send("Password required")
+    }
     let salt = crypto.randomBytes(16).toString('base64')
     //TODO: Check and validate req.body.password.
     let hash = crypto.createHmac('sha512', salt).update(req.body.password).digest('base64')
     req.body.password = salt + "$" + hash
     // Validate email address
-    let domain = req.body._id.split("@")
+    let domain = req.body._id.split("@")[1]
     if (domain == "mail.utoronto.ca") {
         UserModel.createUser(req.body).then((result) => {
             let refreshId = req.body._id + jwtSecret
